@@ -1,0 +1,58 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Set Availability for {{ artist.name }}{% endblock %}
+{% block content %}
+<div class="form-wrapper">
+    <form class="form" method="post" action="/artists/{{ artist.id }}/set_availability">
+        <h3 class="form-heading">Set Availability for <em>{{ artist.name }}</em></h3>
+        <div id="availability-entries">
+            {% for entry in form.entries %}
+            <div class="availability-entry">
+                <div class="form-group">
+                    <label for="date">Date (YYYY-MM-DD)</label>
+                    {{ entry.date(class_='form-control date-input', type='date', format= '%Y%m%d') }}  
+                    {% for error in entry.date.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <label for="start_time">Start Time (HH:MM)</label>
+                    {{ entry.start_time(class_='form-control time-input', type='time', format='%h%m') }}  
+                    {% for error in entry.start_time.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <button type="button" class="btn btn-primary" onclick="addEntry()">Add Another Time Slot</button>
+        <button type="submit" class="btn btn-primary">Update Availability</button>
+    </form>
+    <a href="/artists/{{ artist.id }}" class="btn btn-secondary">Back to Artist</a>
+</div>
+
+<script>
+function addEntry() {
+    let container = document.getElementById("availability-entries");
+
+    let newEntry = container.children[0].cloneNode(true);
+
+    const dateInput = newEntry.querySelector(".date-input");
+    const timeInput = newEntry.querySelector(".time-input");
+
+    if (dateInput) {
+        dateInput.value = "";  
+    }
+    if (timeInput) {
+        timeInput.value = "";  
+    }
+
+    newEntry.querySelectorAll("input").forEach((input) => {
+        const currentIndex = container.children.length; 
+        input.name = input.name.replace(/\[\d+\]/, `[${currentIndex}]`); 
+    });
+
+    container.appendChild(newEntry);
+}
+</script>
+{% endblock %}

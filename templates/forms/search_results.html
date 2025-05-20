@@ -1,0 +1,24 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Search Results{% endblock %}
+{% block content %}
+
+<div class="container">
+    <div class="form-wrapper">
+        <form class="form" method="post" action="/search">
+            {{ form.hidden_tag() }}
+            <h3 class="form-heading">Search Artists and Venues</h3>
+            <div class="form-group">
+                {{ form.city.label(class='form-label') }}
+                {{ form.city(class='form-control') }}
+            </div>
+            <div class="form-group">
+                {{ form.state.label(class='form-label') }}
+                {{ form.state(class='form-control') }}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class='btn btn-primary') }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

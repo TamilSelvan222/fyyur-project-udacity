@@ -1,0 +1,49 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Fyyur | Search by City and State{% endblock %}
+{% block content %}
+
+<h3>Search Results for {{ city }}, {{ state }}</h3>
+{% if artists %} 
+<h2>Artists</h2>
+<div class="row">
+    {% for artist in artists %}
+    <div class="col-md-4">
+        <div class="card">
+            <img src="{{ artist.image_link }}" alt="Artist Image" class="card-img-top" style="width: 100px; height: auto;">
+            <div class="card-body">
+                <h5 class="card-title">{{ artist.name }}</h5>
+                <p class="card-text">Location: {{ artist.city }}, {{ artist.state }}</p>
+                <a href="/artists/{{ artist.id }}" class="btn btn-primary">View Artist</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+{% if not artists %}
+<h2>Artists</h2>
+<p>No artists found.</p>
+{% endif %}
+{% endif %}
+{% if venues %}
+<h2>Venues</h2>
+<div class="row">
+    {% for venue in venues %}
+    <div class="col-md-4">
+        <div class="card">
+            <img src="{{ venue.image_link or url_for('static', filename='img/default-venue.jpg') }}" alt="Venue Image" class="card-img-top" style="width: 100px; height: auto;">
+            <div class="card-body">
+                <h5 class="card-title">{{ venue.name }}</h5>
+                <p class="card-text">Location: {{ venue.city }}, {{ venue.state }}</p>
+                <a href="/venues/{{ venue.id }}" class="btn btn-primary">View Venue</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<h2>Venues</h2>
+<p>No venues found.</p>
+{% endif %}
+
+{% endblock %}
