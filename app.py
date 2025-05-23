@@ -56,7 +56,7 @@ def search():
             venues = Venue.query.filter_by(city=city, state=state).all()
             return render_template('pages/show_results.html', city=city, state=state, artists=artists, venues=venues)
         flash('Please enter a valid city and state.')
-    
+
     return render_template('forms/search_results.html', form=form, artists=artists, venues=venues)
 
 # Artist Routes
@@ -99,13 +99,15 @@ def create_artist_submission():
 def show_artist(artist_id):
     artist = Artist.query.get_or_404(artist_id)
     now = datetime.now()
+
+    shows = db.session.query(Show, Venue).join(Venue).filter(Show.artist_id == artist_id).all()
     past, upcoming = [], []
 
-    for show in artist.shows:
+    for show, venue in shows:
         info = {
-            "venue_id": show.venue_id,
-            "venue_name": show.venue.name,
-            "venue_image_link": show.venue.image_link,
+            "venue_id": venue.id,
+            "venue_name": venue.name,
+            "venue_image_link": venue.image_link,
             "start_time": format_datetime(show.start_time)
         }
         (past if show.start_time <= now else upcoming).append(info)
@@ -212,13 +214,15 @@ def create_venue_submission():
 def show_venue(venue_id):
     venue = Venue.query.get_or_404(venue_id)
     now = datetime.now()
+
+    shows = db.session.query(Show, Artist).join(Artist).filter(Show.venue_id == venue_id).all()
     past, upcoming = [], []
 
-    for show in venue.shows:
+    for show, artist in shows:
         info = {
-            "artist_id": show.artist_id,
-            "artist_name": show.artist.name,
-            "artist_image_link": show.artist.image_link,
+            "artist_id": artist.id,
+            "artist_name": artist.name,
+            "artist_image_link": artist.image_link,
             "start_time": format_datetime(show.start_time)
         }
         (past if show.start_time <= now else upcoming).append(info)
@@ -259,15 +263,24 @@ def edit_venue_submission(venue_id):
 # Show Routes
 @app.route('/shows')
 def shows():
-    shows = Show.query.all()
+    shows = db.session.query(
+        Show.venue_id,
+        Venue.name.label("venue_name"),
+        Show.artist_id,
+        Artist.name.label("artist_name"),
+        Artist.image_link.label("artist_image_link"),
+        Show.start_time
+    ).join(Artist).join(Venue).all()
+
     data = [{
         'venue_id': show.venue_id,
-        'venue_name': show.venue.name,
+        'venue_name': show.venue_name,
         'artist_id': show.artist_id,
-        'artist_name': show.artist.name,
-        'artist_image_link': show.artist.image_link,
+        'artist_name': show.artist_name,
+        'artist_image_link': show.artist_image_link,
         'start_time': show.start_time.isoformat()
     } for show in shows]
+
     return render_template('pages/shows.html', shows=data)
 
 @app.route('/shows/create', methods=['GET', 'POST'])
